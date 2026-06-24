@@ -1,0 +1,6 @@
+{
+  "name": "Cute Toda",
+  "description": "A cute, mobile-first offline-first Progressive Web App for dog boarding hotels with a pastel rose theme, local IndexedDB storage, and camera integration.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

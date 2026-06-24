@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Cute Toda - Canine Boarding Manager</title>
+    
+    <!-- PWA Installable Metadata -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/png" href="/icon.png" />
+    <meta name="theme-color" content="#ec4899" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link class="apple-touch-icon" href="/icon.png" />
+
+    <!-- Google Fonts for High-Quality Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-pink-50/30 antialiased selection:bg-pink-400 selection:text-white pb-6">
+
+    <!-- Responsive Layout Wrapper: Centered Split bento on desktop, full screen on mobile -->
+    <div class="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-10 p-4 sm:p-6 lg:p-8">
+
+      <!-- Left Module: Mobile PWA App Mockup Container -->
+      <div class="w-full max-w-md lg:w-[385px] lg:h-[780px] bg-white lg:rounded-[40px] lg:shadow-2xl lg:border-8 lg:border-slate-800 overflow-hidden flex flex-col relative">
+        
+        <!-- Status Bar Simulation (only visible on desktop wrapper) -->
+        <div class="hidden lg:flex h-7 justify-between items-center px-8 pt-2 bg-slate-50 text-slate-500 text-[11px] font-bold select-none border-b border-slate-100/50">
+          <span>9:41 AM</span>
+          <div class="flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>
+            <span class="w-2 h-2 bg-pink-500 rounded-full animate-pulse"></span>
+            <span>100%</span>
+          </div>
+        </div>
+
+        <!-- Sticky App Navigation Header -->
+        <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-pink-100/40 px-5 py-3.5 flex items-center justify-between shadow-xs">
+          <div class="flex items-center gap-2.5">
+            <!-- Back Button -->
+            <button id="back-btn" class="p-2 hover:bg-slate-100 active-tap rounded-xl text-slate-600 transition-all invisible pointer-events-none" aria-label="Go back">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+            </button>
+            <div class="flex items-center gap-2">
+              <!-- Logo Avatar with Custom Emerald styling -->
+              <div class="w-8 h-8 rounded-xl bg-pink-500 flex items-center justify-center text-white overflow-hidden shadow-md">
+                <img src="/icon.png" alt="Hotel Logo" class="w-full h-full object-cover" referrerPolicy="no-referrer">
+              </div>
+              <div>
+                <h1 class="font-display font-black text-pink-600 text-xl tracking-tight leading-none">Cute Toda</h1>
+                <p id="header-subtitle" class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Hotel Dashboard</p>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <!-- Language Selector Dropdown -->
+            <select id="lang-select" class="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-extrabold rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all cursor-pointer">
+              <option value="en">🇬🇧 EN</option>
+              <option value="de">🇩🇪 DE</option>
+              <option value="th">🇹🇭 TH</option>
+            </select>
+            <span class="inline-flex items-center gap-1.5 bg-pink-50 border border-pink-100/50 text-pink-700 px-2 py-0.5 rounded-lg text-[10px] font-bold shadow-2xs">
+              <span class="w-1.5 h-1.5 rounded-full bg-pink-500 pulse-badge"></span>
+              <span id="header-live-text">Live</span>
+            </span>
+          </div>
+        </header>
+
+        <!-- Main Screens Container with scrolling layout -->
+        <main class="flex-1 overflow-y-auto p-4 space-y-4 lg:h-[660px]">
+
+          <!-- ==========================================
+               1. HOME SCREEN VIEW
+               ========================================== -->
+          <section id="home-screen" class="view space-y-5">
+            
+            <!-- Welcome banner with live count metrics -->
+            <div class="bg-gradient-to-br from-pink-400 via-pink-400 to-pink-500 rounded-3xl p-5 text-white shadow-lg shadow-pink-500/10 relative overflow-hidden">
+              <div class="absolute -right-4 -bottom-10 opacity-10 text-white select-none pointer-events-none">
+                <svg class="w-44 h-44" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.42 2.72 6.2 6 6.72V21h2v-3.28c3.28-.52 6-3.3 6-6.72h-1.7z"/>
+                </svg>
+              </div>
+              <div class="relative z-10">
+                <h2 id="occupancy-title" class="font-display font-black text-2xl tracking-tight mb-1">Hotel Occupancy</h2>
+                <p id="occupancy-desc" class="text-pink-100 text-xs mb-4">Real-time check-ins and care checklist.</p>
+                
+                <div class="grid grid-cols-2 gap-3 pt-3 border-t border-white/10">
+                  <div class="bg-white/10 backdrop-blur-xs rounded-2xl p-3">
+                    <span id="stat-total-label" class="text-pink-200 text-[10px] font-bold uppercase tracking-wider block mb-0.5">Checked In</span>
+                    <span id="stat-total-dogs" class="text-2xl font-display font-black leading-none">0</span>
+                  </div>
+                  <div class="bg-white/10 backdrop-blur-xs rounded-2xl p-3">
+                    <span id="stat-today-label" class="text-pink-200 text-[10px] font-bold uppercase tracking-wider block mb-0.5">New Today</span>
+                    <span id="stat-today-dogs" class="text-2xl font-display font-black leading-none">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Search and Sorting Controls -->
+            <div class="space-y-2">
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                </div>
+                <input type="text" id="search-dogs" placeholder="Search dog, owner, room..." class="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all font-medium text-slate-700 shadow-xs" />
+              </div>
+              
+              <!-- Dropdown Sorting options -->
+              <div class="relative">
+                <select id="sort-dogs" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-600 focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all shadow-xs appearance-none pr-8">
+                  <option id="sort-option-newest" value="date-desc">Newest Check-In</option>
+                  <option id="sort-option-oldest" value="date-asc">Oldest Check-In</option>
+                  <option id="sort-option-name" value="name-asc">Dog Name (A-Z)</option>
+                </select>
+                <div class="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-slate-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Dogs List Container -->
+            <div id="dogs-list" class="space-y-3 min-h-[300px]">
+              <!-- Dog cards are dynamically injected here by app.js -->
+            </div>
+
+            <!-- Floating Action Button for Check-In -->
+            <button id="fab-add-dog" class="fab w-14 h-14 bg-pink-500 hover:bg-pink-600 text-white rounded-full flex items-center justify-center active-tap transition-all shadow-lg" aria-label="Add new guest profile">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
+              </svg>
+            </button>
+
+          </section>
+
+          <!-- ==========================================
+               2. ADD / EDIT DOG FORM VIEW
+               ========================================== -->
+          <section id="add-dog-screen" class="view hidden space-y-4">
+            <div class="bg-white rounded-3xl border border-slate-150 p-5 shadow-sm space-y-4">
+              <div>
+                <h2 id="form-view-title" class="font-display font-extrabold text-lg text-slate-800">New Guest Check-In</h2>
+                <p id="form-subtitle" class="text-[11px] text-slate-500 mt-0.5">Please populate canine guest details and care instructions.</p>
+              </div>
+
+              <form id="dog-form" class="space-y-3.5" data-edit-mode="false" data-dog-id="">
+                <!-- Dog Name Field -->
+                <div class="space-y-1">
+                  <label id="label-dog-name" for="dog-name" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Canine Name</label>
+                  <input type="text" id="dog-name" required placeholder="e.g. Cooper" class="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all font-medium text-slate-700" />
+                       <!-- Owner Name Field -->
+                <div class="space-y-1">
+                  <label id="label-owner-name" for="owner-name" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Owner Name</label>
+                  <input type="text" id="owner-name" required placeholder="e.g. Sarah Jenkins" class="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all font-medium text-slate-700" />
+                </div>
+
+                <!-- Room Number (Mockup theme integration) -->
+                <div class="space-y-1">
+                  <label id="label-dog-room" for="dog-room" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Room / Kennel Allocation</label>
+                  <input type="text" id="dog-room" placeholder="e.g. Room 102" class="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all font-medium text-slate-700" />
+                </div>
+
+                <!-- Care Tag / Alert Status -->
+                <div class="space-y-1">
+                  <label id="label-dog-tag" for="dog-tag" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Care Priority Category</label>
+                  <select id="dog-tag" class="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all font-medium text-slate-700">
+                    <option id="opt-care-standard" value="standard">Standard Care</option>
+                    <option id="opt-care-diet" value="special-diet">Special Diet</option>
+                    <option id="opt-care-meds" value="meds">Meds Required</option>
+                    <option id="opt-care-active" value="active">Active Play / Walk</option>
+                  </select>
+                </div>
+
+                <!-- Items Brought (Text Area) -->
+                <div class="space-y-1">
+                  <label id="label-dog-items" for="dog-items" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Luggage &amp; Personal Belongings</label>
+                  <textarea id="dog-items" rows="3" placeholder="e.g. Red leash, favor food, chew toys..." class="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all font-medium text-slate-700 resize-none"></textarea>
+                  <p id="items-instruction" class="text-[9px] text-slate-400 mt-1">Separate items using commas, semicolons, or new lines for simple list formatting.</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-2 pt-2">
+                  <button type="button" id="cancel-form-btn" class="flex-1 bg-slate-100 hover:bg-slate-200 active-tap text-slate-600 font-bold px-4 py-3 rounded-2xl transition-all text-xs">
+                    <span id="cancel-btn-text">Cancel</span>
+                  </button>
+                  <button type="submit" id="submit-dog-btn" class="flex-1 bg-pink-500 hover:bg-pink-600 active-tap text-white font-bold px-4 py-3 rounded-2xl transition-all text-xs shadow-md">
+                    <span id="submit-btn-text">Complete Check-In</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <!-- ==========================================
+               3. DOG DETAILS SCREEN VIEW
+               ========================================== -->
+          <section id="dog-details-screen" class="view hidden space-y-4">
+            
+            <!-- Dog Profile Card Hero Banner -->
+            <div class="bg-white rounded-3xl border border-slate-150 p-5 shadow-sm relative overflow-hidden">
+              <div class="flex justify-between items-start gap-4 mb-3">
+                <div>
+                  <div id="detail-care-badge" class="inline-flex items-center gap-1.5 bg-pink-50 text-pink-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg border border-pink-100">
+                    <span class="w-1.5 h-1.5 rounded-full bg-pink-500 pulse-badge"></span>
+                    <span id="detail-residence-badge-text">In Residence</span>
+                  </div>
+                  <h2 id="detail-dog-name" class="font-display font-black text-2xl text-slate-800 leading-tight mt-1.5 mb-0.5">Dog Name</h2>
+                  <p class="text-xs text-slate-500 flex items-center gap-1">
+                    <span id="label-detail-owner-prefix">Owner:</span> <strong id="detail-owner-name" class="text-slate-700 font-semibold">Owner Name</strong>
+                  </p>
+                </div>
+                
+                <!-- Quick edit option -->
+                <button id="edit-dog-btn" class="bg-slate-50 hover:bg-slate-100 active-tap p-2.5 border border-slate-200 rounded-xl text-slate-600 transition-all shadow-2xs" aria-label="Edit Profile">
+                  <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 pt-3.5 border-t border-slate-100">
+                <div>
+                  <span id="label-detail-room" class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Room Allocation</span>
+                  <span id="detail-room-badge" class="text-xs font-bold text-pink-700 bg-pink-50 border border-pink-100/50 px-2.5 py-0.5 rounded-md inline-block">Room 102</span>
+                </div>
+                <div>
+                  <span id="label-detail-stay" class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Time Boarded</span>
+                  <span id="detail-stay-duration" class="text-xs font-semibold text-slate-700">Elapsed</span>
+                </div>
+              </div>
+              <div class="pt-2">
+                <span id="label-detail-timestamp" class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Check-In Timestamp</span>
+                <span id="detail-checkin-time" class="text-xs font-semibold text-slate-500">Date time</span>
+              </div>
+            </div>
+
+            <!-- Luggage Checklist Section -->
+            <div class="bg-white rounded-3xl border border-slate-150 p-5 shadow-sm space-y-3">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                  </svg>
+                </div>
+                <h3 id="label-detail-luggage" class="font-display font-bold text-sm text-slate-800">Luggage &amp; Belongings Ledger</h3>
+              </div>
+              
+              <!-- Dynamic luggage checklist container -->
+              <div id="detail-items-container"></div>
+            </div>
+
+            <!-- Photo Diary Gallery Section -->
+            <div class="bg-white rounded-3xl border border-slate-150 p-5 shadow-sm space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 bg-pink-50 text-pink-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                    </svg>
+                  </div>
+                  <h3 id="label-detail-photo" class="font-display font-bold text-sm text-slate-800">Pet Photo Diary</h3>
+                </div>
+                <span class="bg-pink-50 text-pink-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-pink-100/50">
+                  <span id="photo-diary-count">0</span> <span id="label-detail-snaps-text">snaps</span>
+                </span>
+              </div>
+
+              <!-- Grid gallery container -->
+              <div id="photos-grid" class="grid grid-cols-3 gap-2">
+                <!-- Add Photo Camera Card Trigger (Always present) -->
+                <button id="camera-trigger-card" class="aspect-square border-2 border-dashed border-slate-200 hover:border-pink-400 text-slate-400 hover:text-pink-600 rounded-2xl flex flex-col items-center justify-center gap-1 active-tap transition-all bg-slate-50/50">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"></path>
+                  </svg>
+                  <span id="camera-trigger-card-text" class="text-[9px] font-bold uppercase tracking-wider">Add Media</span>
+                  <!-- Native device camera file input handler -->
+                  <input type="file" accept="image/*" capture="environment" id="camera-input" class="hidden">
+                  <!-- Native device video file input handler -->
+                  <input type="file" accept="video/*" capture="environment" id="video-input" class="hidden">
+                </button>
+              </div>
+            </div>
+
+            <!-- Checkout delete profile button -->
+            <div class="pt-1">
+              <button id="checkout-dog-btn" class="w-full bg-red-50 hover:bg-red-100 active-tap text-red-600 border border-red-100 font-bold px-4 py-3.5 rounded-2xl transition-all text-xs flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                <span id="checkout-btn-text">Complete Check-Out (Check Out Guest)</span>
+              </button>
+            </div>
+
+          </section>
+
+        </main>
+      </div>
+
+      <!-- Right Module: Desktop Feature Highlights (Visible on screen size lg and up) -->
+      <div class="hidden lg:flex w-[320px] flex-col gap-5 flex-shrink-0 justify-start">
+        
+        <!-- Feature 1: PWA Status -->
+        <div class="bg-white p-5 rounded-3xl shadow-xs border border-slate-200">
+          <div class="flex items-center gap-2.5 mb-2">
+            <span class="w-7 h-7 bg-pink-50 text-pink-600 rounded-lg flex items-center justify-center font-bold text-xs">PWA</span>
+            <h2 id="pwa-title" class="text-pink-700 font-black text-base tracking-tight">PWA Optimized</h2>
+          </div>
+          <p id="pwa-desc" class="text-slate-500 text-xs leading-relaxed">Offline-first architecture powered by IndexedDB. Manage check-ins and capture photos even without an internet connection.</p>
+        </div>
+
+        <!-- Feature 2: Digital Intake Status Tracker -->
+        <div class="bg-white p-5 rounded-3xl shadow-xs border border-slate-200">
+          <h3 class="text-slate-800 font-bold text-sm mb-3.5 flex items-center gap-2">
+            <span class="w-6 h-6 bg-pink-50 text-pink-600 rounded-lg flex items-center justify-center text-xs">01</span>
+            <span id="intake-title">Digital Intake</span>
+          </h3>
+          <div class="space-y-2.5">
+            <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div class="h-full w-4/5 bg-pink-500 rounded-full"></div>
+            </div>
+            <p id="intake-desc" class="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-normal">Recent activity: Guest intake logs updated</p>
+          </div>
+        </div>
+
+        <!-- Feature 3: Quick Camera integration card -->
+        <div class="bg-slate-900 p-5 rounded-3xl shadow-md text-white">
+          <div class="flex items-center gap-3.5 mb-3">
+            <div class="w-10 h-10 bg-pink-500 rounded-xl flex items-center justify-center text-white flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+            </div>
+            <div>
+              <h4 id="camera-title" class="font-bold text-sm">Quick Camera</h4>
+              <p id="camera-subtitle" class="text-[10px] text-slate-400">Auto-save to Pet Profile</p>
+            </div>
+          </div>
+          <p id="camera-desc" class="text-[11px] text-slate-300 leading-normal">Capture and store high-resolution dog photos directly into local storage using native device integration.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==========================================
+         4. PHOTO & VIDEO LIGHTBOX DIALOG OVERLAY
+         ========================================== -->
+    <div id="lightbox-modal" class="fixed inset-0 z-[100] bg-black/95 flex flex-col justify-between items-center py-6 hidden">
+      <div class="w-full px-4 flex justify-between items-center text-white">
+        <span id="lightbox-caption" class="text-xs font-mono text-white/75">Timestamp</span>
+        <button id="lightbox-close-btn" class="p-2 hover:bg-white/10 rounded-xl text-white transition-all active-tap" aria-label="Close Lightbox">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="max-w-2xl max-h-[60vh] flex items-center justify-center p-4 w-full relative">
+        <img id="lightbox-img" src="" alt="Lightbox image" class="max-w-full max-h-[60vh] rounded-2xl object-contain shadow-2xl border border-white/5 hidden" referrerPolicy="no-referrer">
+        <video id="lightbox-video" controls class="max-w-full max-h-[60vh] rounded-2xl object-contain shadow-2xl border border-white/5 hidden" playsinline></video>
+      </div>
+
+      <div class="w-full max-w-sm px-4 space-y-2">
+        <div class="flex gap-2.5">
+          <!-- Export Button -->
+          <button id="lightbox-export-btn" class="flex-1 bg-pink-500 hover:bg-pink-600 active-tap text-white font-bold py-3 px-3 rounded-2xl transition-all text-[11px] flex items-center justify-center gap-1.5 shadow-md">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            <span id="export-btn-text">Save Gallery</span>
+          </button>
+          
+          <!-- Share to Messenger Button -->
+          <button id="lightbox-share-btn" class="flex-1 bg-sky-500 hover:bg-sky-600 active-tap text-white font-bold py-3 px-3 rounded-2xl transition-all text-[11px] flex items-center justify-center gap-1.5 shadow-md">
+            <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.915 1.455 5.513 3.734 7.21v3.743a.5.5 0 00.741.439l4.137-2.282A12.784 12.784 0 0012 20.516c5.523 0 10-4.145 10-9.258S17.523 2 12 2zm1.09 12.213l-2.433-2.61a.5.5 0 00-.737 0l-3.237 3.473c-.456.49-.99-.085-.688-.588l3.433-5.71a.5.5 0 01.737-.11l2.433 2.61a.5.5 0 00.737 0l3.237-3.473c.456-.49.99.085.688.588l-3.433 5.71a.5.5 0 01-.737.11z"/>
+            </svg>
+            <span id="share-btn-text">Share Messenger</span>
+          </button>
+        </div>
+
+        <button id="lightbox-delete-btn" class="w-full bg-red-600/10 hover:bg-red-600/20 active-tap text-red-500 hover:text-red-600 border border-red-500/15 font-bold py-3 px-4 rounded-2xl transition-all text-xs flex items-center justify-center gap-2 shadow-xs">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          <span id="lightbox-delete-btn-text">Delete Media</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         5. MEDIA TYPE SELECTOR BOTTOM SHEET
+         ========================================== -->
+    <div id="media-action-sheet" class="fixed inset-0 z-[105] bg-black/60 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+      <div id="media-action-sheet-content" class="bg-white w-full max-w-md rounded-t-3xl p-6 space-y-4 shadow-xl transform translate-y-full transition-transform duration-300">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+          <h3 id="media-sheet-title" class="font-display font-black text-slate-800 text-lg">Add Pet Update</h3>
+          <button id="close-media-sheet-btn" class="p-1 hover:bg-slate-100 rounded-lg text-slate-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <p id="media-sheet-desc" class="text-xs text-slate-500">Capture a live update or upload media of the dog during their hotel stay.</p>
+        <div class="grid grid-cols-2 gap-3.5 pt-2">
+          <!-- Photo Option -->
+          <button id="option-add-photo" class="flex flex-col items-center justify-center p-4 bg-pink-50/50 hover:bg-pink-50 border border-pink-100 rounded-2xl gap-2 active-tap transition-all text-pink-600">
+            <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+            </div>
+            <span id="option-add-photo-text" class="text-xs font-bold">Add Photo</span>
+          </button>
+          <!-- Video Option -->
+          <button id="option-add-video" class="flex flex-col items-center justify-center p-4 bg-pink-50/50 hover:bg-pink-50 border border-pink-100 rounded-2xl gap-2 active-tap transition-all text-pink-600">
+            <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <span id="option-add-video-text" class="text-xs font-bold">Add Video</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         6. PERSISTENT NOTIFICATION STACK
+         ========================================== -->
+    <div id="toast-container" class="fixed bottom-6 inset-x-0 z-[110] pointer-events-none flex flex-col items-center gap-2"></div>
+
+    <!-- App bundling loader link for Vite -->
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>

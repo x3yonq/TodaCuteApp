@@ -1,0 +1,22 @@
+{
+  "name": "Dog Boarding Hotel PWA",
+  "short_name": "Dog Boarding",
+  "description": "Progressive Web App for Dog Boarding Hotels with local IndexedDB storage and camera integration.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0ea5e9",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
