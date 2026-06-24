@@ -1,9 +1,9 @@
-const CACHE_NAME = 'dog-hotel-v1';
+const CACHE_NAME = 'dog-hotel-v2';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon.png'
+  './',
+  'index.html',
+  'manifest.json',
+  'icon.png'
 ];
 
 // On install, cache the core static assets
