@@ -1,4 +1,4 @@
-export const translations = {
+window.translations = {
   en: {
     title: "Cute Toda",
     subtitle: "Hotel Dashboard",

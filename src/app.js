@@ -1,6 +1,5 @@
-// App styling import for Vite bundler
-import './styles.css';
-import { translations } from './translations.js';
+// Retrieve translations from global window context
+const translations = window.translations;
 
 // Database configurations
 const DB_NAME = 'DogBoardingHotelDB';

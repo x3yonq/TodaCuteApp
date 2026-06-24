@@ -17,6 +17,34 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                DEFAULT: '#ec4899',
+                dark: '#be185d',
+                light: '#fdf2f8',
+              },
+              secondary: '#f43f5e',
+              accent: '#f472b6',
+              background: '#fff5f7',
+              border: '#fce7f3'
+            },
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+              display: ['Outfit', 'Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="src/styles.css" />
   </head>
   <body class="bg-pink-50/30 antialiased selection:bg-pink-400 selection:text-white pb-6">
 
@@ -440,7 +468,8 @@
          ========================================== -->
     <div id="toast-container" class="fixed bottom-6 inset-x-0 z-[110] pointer-events-none flex flex-col items-center gap-2"></div>
 
-    <!-- App bundling loader link for Vite -->
-    <script type="module" src="src/app.js"></script>
+    <!-- Local Application Javascript Files -->
+    <script src="src/translations.js"></script>
+    <script src="src/app.js"></script>
   </body>
 </html>
