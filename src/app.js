@@ -17,6 +17,26 @@ const state = {
   language: localStorage.getItem('pawpal_language') || 'en' // Default language
 };
 
+// Fallback in-memory states with localStorage backup if IndexedDB fails
+let fallbackDogs = [];
+let fallbackPhotos = [];
+try {
+  const storedDogs = localStorage.getItem('pawpal_fallback_dogs');
+  if (storedDogs) {
+    fallbackDogs = JSON.parse(storedDogs);
+  }
+} catch (e) {
+  console.warn('Could not parse fallback dogs storage:', e);
+}
+try {
+  const storedPhotos = localStorage.getItem('pawpal_fallback_photos');
+  if (storedPhotos) {
+    fallbackPhotos = JSON.parse(storedPhotos);
+  }
+} catch (e) {
+  console.warn('Could not parse fallback photos storage:', e);
+}
+
 // ==========================================
 // 1. INDEXEDDB DATABASE ENGINE
 // ==========================================
@@ -53,10 +73,13 @@ function initDB() {
   });
 }
 
-// Promise-based wrappers for Database Operations
+// Promise-based wrappers for Database Operations with robust in-memory/localStorage fallback
 const dbOps = {
   // Get all dogs
   getAllDogs() {
+    if (!db) {
+      return Promise.resolve([...fallbackDogs]);
+    }
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(['dogs'], 'readonly');
       const store = transaction.objectStore('dogs');
@@ -69,6 +92,10 @@ const dbOps = {
 
   // Get a single dog by ID
   getDog(id) {
+    if (!db) {
+      const dog = fallbackDogs.find(d => d.id === id);
+      return Promise.resolve(dog);
+    }
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(['dogs'], 'readonly');
       const store = transaction.objectStore('dogs');
@@ -81,6 +108,20 @@ const dbOps = {
 
   // Add or Update a dog
   saveDog(dog) {
+    if (!db) {
+      const idx = fallbackDogs.findIndex(d => d.id === dog.id);
+      if (idx > -1) {
+        fallbackDogs[idx] = dog;
+      } else {
+        fallbackDogs.push(dog);
+      }
+      try {
+        localStorage.setItem('pawpal_fallback_dogs', JSON.stringify(fallbackDogs));
+      } catch (e) {
+        console.warn('Could not save to localStorage:', e);
+      }
+      return Promise.resolve(dog);
+    }
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(['dogs'], 'readwrite');
       const store = transaction.objectStore('dogs');
@@ -93,6 +134,17 @@ const dbOps = {
 
   // Delete a dog and all its photos
   deleteDog(id) {
+    if (!db) {
+      fallbackDogs = fallbackDogs.filter(d => d.id !== id);
+      fallbackPhotos = fallbackPhotos.filter(p => p.dogId !== id);
+      try {
+        localStorage.setItem('pawpal_fallback_dogs', JSON.stringify(fallbackDogs));
+        localStorage.setItem('pawpal_fallback_photos', JSON.stringify(fallbackPhotos));
+      } catch (e) {
+        console.warn('Could not save to localStorage:', e);
+      }
+      return Promise.resolve(true);
+    }
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(['dogs', 'photos'], 'readwrite');
       
@@ -124,6 +176,11 @@ const dbOps = {
 
   // Get photos for a specific dog
   getPhotosByDog(dogId) {
+    if (!db) {
+      const results = fallbackPhotos.filter(p => p.dogId === dogId);
+      results.sort((a, b) => b.timestamp - a.timestamp);
+      return Promise.resolve(results);
+    }
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(['photos'], 'readonly');
       const store = transaction.objectStore('photos');
@@ -142,6 +199,15 @@ const dbOps = {
 
   // Save a photo record
   savePhoto(photo) {
+    if (!db) {
+      fallbackPhotos.push(photo);
+      try {
+        localStorage.setItem('pawpal_fallback_photos', JSON.stringify(fallbackPhotos));
+      } catch (e) {
+        console.warn('Could not save to localStorage:', e);
+      }
+      return Promise.resolve(photo);
+    }
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(['photos'], 'readwrite');
       const store = transaction.objectStore('photos');
@@ -154,6 +220,15 @@ const dbOps = {
 
   // Delete a photo by ID
   deletePhoto(id) {
+    if (!db) {
+      fallbackPhotos = fallbackPhotos.filter(p => p.id !== id);
+      try {
+        localStorage.setItem('pawpal_fallback_photos', JSON.stringify(fallbackPhotos));
+      } catch (e) {
+        console.warn('Could not save to localStorage:', e);
+      }
+      return Promise.resolve(true);
+    }
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(['photos'], 'readwrite');
       const store = transaction.objectStore('photos');
@@ -503,15 +578,15 @@ function navigateTo(viewName, dogId = null) {
   // Toggle visual back button in standard header
   const backBtn = document.getElementById('back-btn');
   if (viewName === 'home') {
-    backBtn.classList.add('invisible', 'pointer-events-none');
+    backBtn.classList.add('hidden');
     document.getElementById('home-screen').classList.remove('hidden');
     renderHomeScreen();
   } else if (viewName === 'add') {
-    backBtn.classList.remove('invisible', 'pointer-events-none');
+    backBtn.classList.remove('hidden');
     document.getElementById('add-dog-screen').classList.remove('hidden');
     setupAddScreenForm();
   } else if (viewName === 'details') {
-    backBtn.classList.remove('invisible', 'pointer-events-none');
+    backBtn.classList.remove('hidden');
     document.getElementById('dog-details-screen').classList.remove('hidden');
     renderDetailsScreen(dogId);
   }
@@ -1279,14 +1354,24 @@ function registerServiceWorker() {
 
 // Bootstrap application on DOM load
 document.addEventListener('DOMContentLoaded', async () => {
+  // 1. Bind UI event listeners immediately so the UI is active and responsive from the start
+  initAppEvents();
+  
+  // 2. Render initial localized strings
+  updateLanguageDOM();
+  
+  // 3. Register background Service Worker
+  registerServiceWorker();
+
+  // 4. Try opening the persistent IndexedDB store with fallback support
   try {
     await initDB();
-    initAppEvents();
-    updateLanguageDOM();
-    registerServiceWorker();
-    navigateTo('home');
-  } catch (error) {
-    console.error('Bootstrapping error:', error);
-    showToast('Critical startup error. Refresh and try again.', 'error');
+    console.log('Database initialized successfully.');
+  } catch (dbError) {
+    console.error('Database failed to initialize. Falling back to secure memory state with localStorage sync:', dbError);
+    db = null; // Mark db as null to trigger fallback handling in dbOps
   }
+
+  // 5. Navigate to standard home view
+  navigateTo('home');
 });
